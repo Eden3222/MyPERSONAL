@@ -55,7 +55,6 @@ body {
 /* ── HEADER ── */
 #hdr {
   background: var(--surface);
-  border-bottom: 1px solid var(--border);
   padding: calc(var(--safe-top) + 14px) 18px 14px;
   flex-shrink: 0;
   display: flex; align-items: center; justify-content: space-between;
@@ -132,10 +131,9 @@ body {
 /* ── CARDS ── */
 .card {
   background: var(--surface);
-  border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 18px; margin-bottom: 10px;
-  box-shadow: var(--sh-card);
+  padding: 20px; margin-bottom: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,.4);
 }
 .card-label {
   font-size: 10px; font-weight: 700; letter-spacing: 1px;
@@ -148,10 +146,10 @@ body {
 
 /* ── SECTION LABELS ── */
 .sec {
-  font-size: 11px; font-weight: 500; letter-spacing: .2px;
-  color: var(--muted); margin: 20px 0 7px 4px;
+  font-size: 13px; font-weight: 600; letter-spacing: -.1px;
+  color: var(--muted); margin: 22px 0 8px 2px;
 }
-.sec:first-child { margin-top: 4px; }
+.sec:first-child { margin-top: 6px; }
 
 /* ── HERO NUMBER ── */
 .hero { font-size: 44px; font-weight: 250; letter-spacing: -2px; line-height: 1; }
@@ -168,7 +166,8 @@ body {
 /* ── ROWS ── */
 .row {
   display: flex; justify-content: space-between; align-items: center;
-  padding: 13px 0; border-bottom: 1px solid var(--border);
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(255,255,255,.05);
 }
 .row:last-child { border-bottom: none; }
 .row-l { font-size: 14px; font-weight: 500; }
@@ -235,9 +234,9 @@ body {
 /* ── STAT GRID ── */
 .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
 .stat-card {
-  background: var(--surface); border: 1px solid var(--border);
+  background: var(--surface);
   border-radius: var(--radius-s); padding: 16px;
-  box-shadow: var(--sh-card);
+  box-shadow: 0 4px 20px rgba(0,0,0,.4);
 }
 .stat-lbl { font-size: 10px; color: var(--muted); font-weight: 600; letter-spacing: .6px; text-transform: uppercase; }
 .stat-val { font-size: 28px; font-weight: 300; letter-spacing: -.8px; margin-top: 5px; color: var(--text); }
@@ -293,7 +292,7 @@ body {
 
 /* ── RECEIPT CARD ── */
 .receipt {
-  background: var(--surface2); border: 1px solid var(--border);
+  background: var(--surface2);
   border-radius: var(--radius-s); padding: 14px; margin-bottom: 9px;
 }
 .receipt-hdr { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
@@ -303,9 +302,9 @@ body {
 
 /* ── HISTORY ACCORDION ── */
 .hist-month {
-  background: var(--surface); border: 1px solid var(--border);
+  background: var(--surface);
   border-radius: var(--radius); margin-bottom: 10px; overflow: hidden;
-  box-shadow: var(--sh-card);
+  box-shadow: 0 4px 20px rgba(0,0,0,.4);
 }
 .hist-hdr {
   display: flex; align-items: center; justify-content: space-between;
@@ -416,6 +415,26 @@ select.finput option { background: var(--surface3); }
 /* ── ACTION ROW ── */
 .action-row { display: flex; gap: 10px; margin-bottom: 12px; }
 .action-btn { flex: 1; font-size: 14px; padding: 14px 10px; }
+
+/* ── ICON ROWS ── */
+.irow {
+  display: flex; align-items: center; gap: 14px;
+  padding: 15px 0; border-bottom: 1px solid rgba(255,255,255,.05);
+}
+.irow:last-child { border-bottom: none; }
+.irow-icon {
+  width: 36px; height: 36px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; font-size: 17px;
+}
+.irow-icon.inc { background: rgba(0,212,180,.12); }
+.irow-icon.exp { background: rgba(255,82,82,.1); }
+.irow-icon.tax { background: rgba(245,200,66,.1); }
+.irow-icon.neu { background: rgba(255,255,255,.06); }
+.irow-body { flex: 1; min-width: 0; }
+.irow-label { font-size: 14px; font-weight: 500; }
+.irow-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.irow-val { font-size: 15px; font-weight: 600; }
   </style>
 </head>
 <body>
@@ -474,44 +493,64 @@ select.finput option { background: var(--surface3); }
 
       <div class="sec">Income</div>
       <div class="card">
-        <div class="row">
-          <div><div class="row-l">Gross Revenue</div><div class="row-sub">Monthly from tenants</div></div>
-          <div class="row-v inc" id="p-rev-val">+ PLN —</div>
+        <div class="irow">
+          <div class="irow-icon inc">💰</div>
+          <div class="irow-body">
+            <div class="irow-label">Gross Revenue</div>
+            <div class="irow-sub">Monthly from tenants</div>
+          </div>
+          <div class="irow-val" style="color:var(--teal);" id="p-rev-val">+ PLN —</div>
         </div>
       </div>
 
-      <div class="sec">Fixed Expenses</div>
+      <div class="sec">Expenses</div>
       <div class="card">
-        <div class="row">
-          <div><div class="row-l">Bank Mortgage</div><div class="row-sub">Monthly instalment</div></div>
-          <div class="row-v exp" id="p-mort-val">− PLN —</div>
+        <div class="irow">
+          <div class="irow-icon exp">🏦</div>
+          <div class="irow-body">
+            <div class="irow-label">Bank Mortgage</div>
+            <div class="irow-sub">Monthly instalment</div>
+          </div>
+          <div class="irow-val" style="color:var(--danger);" id="p-mort-val">− PLN —</div>
         </div>
-        <div class="row">
-          <div><div class="row-l">Building Admin Fee</div><div class="row-sub">Czynsz administracyjny</div></div>
-          <div class="row-v exp" id="p-admin-val">− PLN —</div>
+        <div class="irow">
+          <div class="irow-icon exp">🏢</div>
+          <div class="irow-body">
+            <div class="irow-label">Building Admin Fee</div>
+            <div class="irow-sub">Czynsz administracyjny</div>
+          </div>
+          <div class="irow-val" style="color:var(--danger);" id="p-admin-val">− PLN —</div>
         </div>
-      </div>
-
-      <div class="sec">Variable Expenses</div>
-      <div class="card">
-        <div class="row">
-          <div><div class="row-l">Electricity</div><div class="row-sub" id="p-elec-sub">Bi-monthly · PLN —</div></div>
-          <div style="display:flex;align-items:center;gap:9px;">
+        <div class="irow">
+          <div class="irow-icon exp">⚡</div>
+          <div class="irow-body">
+            <div class="irow-label">Electricity</div>
+            <div class="irow-sub" id="p-elec-sub">Bi-monthly · PLN —</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;">
             <span style="font-size:11px;color:var(--muted);" id="elec-lbl">OFF</span>
             <div class="tog" id="elec-tog" onclick="toggleElec()"></div>
           </div>
         </div>
       </div>
 
-      <div class="sec">Tax Calculation (PIT-28 · 8.5%)</div>
+      <div class="sec">Tax — PIT-28 · 8.5%</div>
       <div class="card">
-        <div class="row">
-          <div><div class="row-l">Tax Base</div><div class="row-sub" id="p-formula">—</div></div>
-          <div class="row-v tax" id="p-taxbase">PLN —</div>
+        <div class="irow">
+          <div class="irow-icon tax">📊</div>
+          <div class="irow-body">
+            <div class="irow-label">Tax Base</div>
+            <div class="irow-sub" id="p-formula">—</div>
+          </div>
+          <div class="irow-val" style="color:var(--gold);" id="p-taxbase">PLN —</div>
         </div>
-        <div class="row">
-          <div><div class="row-l">Tax Due (8.5%)</div><div class="row-sub">PIT-28 advance payment</div></div>
-          <div class="row-v tax" id="p-tax">− PLN —</div>
+        <div class="irow">
+          <div class="irow-icon tax">🏛️</div>
+          <div class="irow-body">
+            <div class="irow-label">Tax Due (8.5%)</div>
+            <div class="irow-sub">PIT-28 advance payment</div>
+          </div>
+          <div class="irow-val" style="color:var(--gold);" id="p-tax">− PLN —</div>
         </div>
       </div>
 
@@ -521,9 +560,10 @@ select.finput option { background: var(--surface3); }
         <div class="hero" id="p-netpl">—</div>
         <div class="hero-sub" id="p-netpl-sub">—</div>
         <div class="divider"></div>
-        <div class="row" style="border:none;padding:4px 0;">
-          <span style="font-size:13px;color:var(--muted);">Total Expenses</span>
-          <span style="font-size:13px;color:var(--danger);" id="p-total">PLN —</span>
+        <div class="irow" style="padding:6px 0;">
+          <div class="irow-icon neu">📉</div>
+          <div class="irow-body"><div class="irow-label">Total Expenses</div></div>
+          <div class="irow-val" style="color:var(--danger);" id="p-total">PLN —</div>
         </div>
       </div>
 
@@ -1348,7 +1388,7 @@ function renderHistory() {
             <div style="font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);margin-bottom:7px;">Tasks</div>
             ${all.map(tk => {
               const t = ms.tasks[tk];
-              return `<div style="display:flex;justify-content:space-between;font-size:11px;padding:3px 0;color:${t.done ? 'var(--text)' : 'var(--faint)'};"><span>${t.done ? '✓' : '○'} ${TASK_NAMES[tk]||tk}</span><span>${t.done ? fmtTs(t.ts) : 'Pending'}</span></div>`;
+              return `<div style="display:flex;justify-content:space-between;font-size:11px;padding:3px 0;color:${t.done ? 'var(--text)' : 'var(--faint)'};">\n                <span>${t.done ? '✓' : '○'} ${TASK_NAMES[tk]||tk}</span>\n                <span>${t.done ? fmtTs(t.ts) : 'Pending'}</span>\n              </div>`;
             }).join('')}
           </div>
         </div>

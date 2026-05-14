@@ -1,4 +1,4 @@
-const CACHE = 'eden-v5';
+const CACHE = 'eden-v6';
 const ASSETS = ['./', './index.html', './manifest.json', './sw.js'];
 
 self.addEventListener('install', e => {
