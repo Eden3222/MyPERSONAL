@@ -1,0 +1,1451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Eden">
+  <meta name="theme-color" content="#1C1C1E">
+  <title>Eden's Dashboard</title>
+  <link rel="manifest" href="manifest.json">
+  <style>
+    /* ── TOKENS ─────────────────────────────────────── */
+    :root {
+      --bg:         #F5F0E8;
+      --surface:    #FDFAF4;
+      --surface2:   #F0EBE0;
+      --gold:       #C9A84C;
+      --gold-lt:    #EED98A;
+      --gold-dk:    #A0782A;
+      --text:       #1C1C1E;
+      --muted:      #6E6E73;
+      --faint:      #AEAEB2;
+      --border:     #E0D9CC;
+      --danger:     #8B2E2E;
+      --danger-lt:  #F2DADA;
+      --ok:         #2D6A4F;
+      --ok-lt:      #D8EFE5;
+      --warn-lt:    #FEF3DC;
+      --warn-border:#E8C880;
+      --radius:     16px;
+      --radius-s:   10px;
+      --sh:         0 2px 12px rgba(0,0,0,.07);
+      --sh-lg:      0 8px 32px rgba(0,0,0,.12);
+      --safe-top:   env(safe-area-inset-top, 0px);
+      --safe-bot:   env(safe-area-inset-bottom, 0px);
+    }
+
+    /* ── RESET ──────────────────────────────────────── */
+    *, *::before, *::after {
+      box-sizing: border-box; margin: 0; padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+    html, body { height: 100%; width: 100%; overflow: hidden; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+      background: var(--bg); color: var(--text);
+      font-size: 16px; line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+    ::-webkit-scrollbar { display: none; }
+
+    /* ── LAYOUT ─────────────────────────────────────── */
+    #app { display: flex; flex-direction: column; height: 100dvh; }
+
+    /* ── HEADER ─────────────────────────────────────── */
+    #hdr {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: calc(var(--safe-top) + 10px) 20px 10px;
+      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .hdr-name { font-size: 19px; font-weight: 600; letter-spacing: -.3px; }
+    .hdr-sub  { font-size: 11px; color: var(--muted); margin-top: 1px; }
+    .hdr-pill {
+      background: var(--gold); color: #fff;
+      font-size: 11px; font-weight: 600;
+      padding: 4px 11px; border-radius: 20px; letter-spacing: .3px;
+    }
+
+    /* ── SCROLLABLE CONTENT ─────────────────────────── */
+    #content { flex: 1; overflow: hidden; position: relative; }
+    .view {
+      position: absolute; inset: 0;
+      overflow-y: auto; overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+      padding: 14px 14px calc(82px + var(--safe-bot));
+      display: none;
+    }
+    .view.active { display: block; }
+
+    /* ── BOTTOM NAV ─────────────────────────────────── */
+    #nav {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      padding-bottom: var(--safe-bot);
+      flex-shrink: 0; display: flex;
+    }
+    .nb {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 7px 0; gap: 3px;
+      background: none; border: none; cursor: pointer;
+      color: var(--muted); transition: color .2s;
+      min-height: 54px; position: relative;
+    }
+    .nb.active { color: var(--gold); }
+    .nb svg { width: 22px; height: 22px; }
+    .nb span { font-size: 10px; font-weight: 500; letter-spacing: .2px; }
+    .nb-dot {
+      position: absolute; top: 6px; right: calc(50% - 14px);
+      width: 7px; height: 7px;
+      background: var(--danger); border-radius: 50%;
+      display: none;
+    }
+    .nb-dot.show { display: block; }
+
+    /* ── CARDS ──────────────────────────────────────── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px; margin-bottom: 10px;
+      box-shadow: var(--sh);
+    }
+    .card-label {
+      font-size: 10px; font-weight: 700; letter-spacing: .9px;
+      text-transform: uppercase; color: var(--muted); margin-bottom: 10px;
+    }
+
+    /* ── SECTION LABELS ─────────────────────────────── */
+    .sec {
+      font-size: 10px; font-weight: 700; letter-spacing: .9px;
+      text-transform: uppercase; color: var(--muted);
+      margin: 16px 0 6px 2px;
+    }
+    .sec:first-child { margin-top: 2px; }
+
+    /* ── HERO NUMBER ────────────────────────────────── */
+    .hero { font-size: 38px; font-weight: 300; letter-spacing: -1.5px; line-height: 1; }
+    .hero.pos { color: var(--ok); }
+    .hero.neg { color: var(--danger); }
+    .hero-sub { font-size: 12px; color: var(--muted); margin-top: 5px; }
+
+    /* ── ROWS ───────────────────────────────────────── */
+    .row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 10px 0; border-bottom: 1px solid var(--border);
+    }
+    .row:last-child { border-bottom: none; }
+    .row-l { font-size: 14px; }
+    .row-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .row-v { font-size: 14px; font-weight: 500; }
+    .row-v.inc { color: var(--ok); }
+    .row-v.exp { color: var(--danger); }
+    .row-v.tax { color: var(--gold-dk); }
+
+    /* ── TOGGLE ─────────────────────────────────────── */
+    .tog {
+      width: 46px; height: 27px; background: var(--border);
+      border-radius: 14px; position: relative; cursor: pointer;
+      transition: background .3s; flex-shrink: 0;
+    }
+    .tog.on { background: var(--gold); }
+    .tog::after {
+      content: ''; position: absolute;
+      width: 23px; height: 23px; background: #fff;
+      border-radius: 50%; top: 2px; left: 2px;
+      transition: transform .3s;
+      box-shadow: 0 1px 4px rgba(0,0,0,.2);
+    }
+    .tog.on::after { transform: translateX(19px); }
+
+    /* ── PROGRESS ───────────────────────────────────── */
+    .prog-track {
+      height: 5px; background: var(--surface2);
+      border-radius: 3px; overflow: hidden; margin-top: 7px;
+    }
+    .prog-fill {
+      height: 100%; border-radius: 3px;
+      background: var(--gold); transition: width .5s ease;
+    }
+    .prog-fill.warn { background: #C97A2E; }
+    .prog-fill.danger { background: var(--danger); }
+
+    /* ── BUTTONS ────────────────────────────────────── */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      gap: 6px; padding: 11px 18px; border-radius: var(--radius-s);
+      font-size: 14px; font-weight: 500; cursor: pointer; border: none;
+      font-family: inherit; transition: opacity .15s, transform .1s;
+    }
+    .btn:active { opacity: .8; transform: scale(.98); }
+    .btn-primary { background: var(--gold); color: #fff; }
+    .btn-secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+    .btn-ghost { background: transparent; color: var(--gold); border: 1px solid var(--gold); }
+    .btn-full { width: 100%; }
+    .btn-sm { padding: 6px 13px; font-size: 12px; }
+
+    /* ── STAT GRID ──────────────────────────────────── */
+    .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin-bottom: 10px; }
+    .stat-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-s); padding: 13px;
+    }
+    .stat-lbl { font-size: 10px; color: var(--muted); font-weight: 500; letter-spacing: .3px; }
+    .stat-val { font-size: 24px; font-weight: 300; letter-spacing: -.5px; margin-top: 3px; }
+    .stat-unit { font-size: 12px; color: var(--muted); }
+
+    /* ── ALERTS ─────────────────────────────────────── */
+    .alert {
+      border-radius: var(--radius-s); padding: 11px 13px;
+      margin-bottom: 8px; display: flex; gap: 9px; align-items: flex-start;
+      border: 1px solid var(--danger-lt);
+      background: var(--danger-lt);
+    }
+    .alert.warn { background: var(--warn-lt); border-color: var(--warn-border); }
+    .alert-icon { font-size: 17px; flex-shrink: 0; margin-top: 1px; }
+    .alert-body { font-size: 13px; line-height: 1.4; }
+    .alert-body strong { display: block; font-weight: 600; margin-bottom: 1px; }
+
+    /* ── TASKS ──────────────────────────────────────── */
+    .task {
+      display: flex; align-items: center; gap: 12px;
+      padding: 13px 0; border-bottom: 1px solid var(--border);
+    }
+    .task:last-child { border-bottom: none; }
+    .task-chk {
+      width: 28px; height: 28px; border-radius: 50%;
+      border: 2px solid var(--border); display: flex;
+      align-items: center; justify-content: center;
+      cursor: pointer; flex-shrink: 0; background: #fff;
+      transition: all .2s;
+    }
+    .task-chk.done { background: var(--gold); border-color: var(--gold); }
+    .task-chk svg { width: 13px; height: 13px; stroke: #fff; stroke-width: 3; fill: none; opacity: 0; transition: opacity .2s; }
+    .task-chk.done svg { opacity: 1; }
+    .task-body { flex: 1; min-width: 0; }
+    .task-title { font-size: 14px; font-weight: 500; }
+    .task-title.done { text-decoration: line-through; color: var(--muted); }
+    .task-meta { font-size: 11px; color: var(--muted); margin-top: 1px; }
+    .task-ts { font-size: 10px; color: var(--gold-dk); margin-top: 2px; }
+
+    /* ── FUEL TABLE ─────────────────────────────────── */
+    .ftable { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .ftable th {
+      text-align: left; padding: 4px 6px 9px;
+      color: var(--muted); font-size: 10px; font-weight: 700;
+      letter-spacing: .5px; text-transform: uppercase;
+      border-bottom: 1px solid var(--border);
+    }
+    .ftable td { padding: 9px 6px; border-bottom: 1px solid var(--border); }
+    .ftable tr:last-child td { border-bottom: none; }
+
+    /* ── RECEIPT CARD ───────────────────────────────── */
+    .receipt {
+      background: var(--surface2); border: 1px dashed var(--border);
+      border-radius: var(--radius-s); padding: 13px; margin-bottom: 9px;
+    }
+    .receipt-hdr { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 7px; }
+    .receipt-title { font-size: 13px; font-weight: 600; }
+    .receipt-date { font-size: 10px; color: var(--muted); }
+    .receipt-row { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); padding: 2px 0; }
+
+    /* ── HISTORY ACCORDION ──────────────────────────── */
+    .hist-month {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); margin-bottom: 9px; overflow: hidden;
+    }
+    .hist-hdr {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 16px; cursor: pointer; user-select: none;
+    }
+    .hist-title { font-size: 15px; font-weight: 600; }
+    .hist-sub { font-size: 10px; color: var(--muted); margin-top: 2px; }
+    .hist-body {
+      padding: 0 16px 14px; border-top: 1px solid var(--border);
+      display: none;
+    }
+    .hist-body.open { display: block; }
+    .hist-arrow { transition: transform .25s; }
+    .hist-arrow.open { transform: rotate(180deg); }
+
+    /* ── MODAL SHEET ────────────────────────────────── */
+    .modal-bg {
+      position: fixed; inset: 0; background: rgba(0,0,0,.45);
+      z-index: 900; display: flex; align-items: flex-end;
+      opacity: 0; pointer-events: none; transition: opacity .3s;
+    }
+    .modal-bg.open { opacity: 1; pointer-events: all; }
+    .modal-sheet {
+      width: 100%; background: var(--surface);
+      border-radius: 20px 20px 0 0;
+      padding: 14px 18px calc(var(--safe-bot) + 20px);
+      transform: translateY(100%); max-height: 85vh; overflow-y: auto;
+      transition: transform .3s cubic-bezier(.32,.72,0,1);
+    }
+    .modal-bg.open .modal-sheet { transform: translateY(0); }
+    .modal-handle { width: 36px; height: 4px; background: var(--border); border-radius: 2px; margin: 0 auto 14px; }
+    .modal-title { font-size: 17px; font-weight: 600; margin-bottom: 14px; }
+
+    /* ── FORM ───────────────────────────────────────── */
+    .fg { margin-bottom: 13px; }
+    .flabel {
+      font-size: 11px; font-weight: 700; letter-spacing: .4px;
+      text-transform: uppercase; color: var(--muted); margin-bottom: 5px; display: block;
+    }
+    .finput {
+      width: 100%; padding: 11px 13px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-s); font-size: 16px; color: var(--text);
+      font-family: inherit; -webkit-appearance: none; outline: none;
+      transition: border-color .2s;
+    }
+    .finput:focus { border-color: var(--gold); }
+
+    /* ── BADGE ──────────────────────────────────────── */
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600; }
+    .badge-warn { background: var(--warn-lt); color: #7A5A10; border: 1px solid var(--warn-border); }
+    .badge-danger { background: var(--danger-lt); color: var(--danger); }
+
+    /* ── EMPTY STATE ────────────────────────────────── */
+    .empty { text-align: center; padding: 28px 12px; color: var(--muted); }
+    .empty-icon { font-size: 30px; margin-bottom: 8px; }
+    .empty-text { font-size: 13px; }
+
+    /* ── TOAST ──────────────────────────────────────── */
+    #toast {
+      position: fixed; top: calc(var(--safe-top) + 66px); left: 50%;
+      transform: translateX(-50%) translateY(-14px);
+      background: var(--text); color: #fff;
+      padding: 9px 18px; border-radius: 20px;
+      font-size: 13px; font-weight: 500;
+      z-index: 2000; opacity: 0; transition: all .28s;
+      pointer-events: none; white-space: nowrap;
+    }
+    #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* ── DIVIDER ────────────────────────────────────── */
+    .divider { height: 1px; background: var(--border); margin: 10px 0; }
+
+    /* ── FIRST-RUN BANNER ───────────────────────────── */
+    #setup-banner {
+      background: var(--gold); color: #fff;
+      padding: 10px 16px; font-size: 13px; font-weight: 500;
+      display: flex; align-items: center; justify-content: space-between;
+      cursor: pointer; flex-shrink: 0;
+    }
+    #setup-banner.hidden { display: none; }
+  </style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ── HEADER ────────────────────────────────────── -->
+  <div id="hdr">
+    <div>
+      <div class="hdr-name">Eden's Dashboard</div>
+      <div class="hdr-sub" id="hdr-sub">Personal Finance &amp; Life</div>
+    </div>
+    <div class="hdr-pill" id="hdr-pill">—</div>
+  </div>
+
+  <!-- ── SETUP NUDGE ───────────────────────────────── -->
+  <div id="setup-banner" onclick="openModal('settings-modal')">
+    ⚙️ Tap to configure personal rent &amp; first oil change →
+  </div>
+
+  <!-- ── CONTENT ───────────────────────────────────── -->
+  <div id="content">
+
+    <!-- ═══ DASHBOARD ════════════════════════════════ -->
+    <div class="view active" id="view-dashboard">
+
+      <div class="sec">This Month</div>
+      <div class="card">
+        <div class="card-label">Net Profit / Loss · Investment Property</div>
+        <div class="hero" id="d-netpl">—</div>
+        <div class="hero-sub" id="d-netpl-sub">calculating…</div>
+      </div>
+
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-lbl">Tax Set-Aside</div>
+          <div class="stat-val" id="d-tax">—</div>
+          <div class="stat-unit">PLN · PIT-28</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-lbl">Tasks Completed</div>
+          <div class="stat-val" id="d-tasks">0</div>
+          <div class="stat-unit" id="d-tasks-of">of — this month</div>
+        </div>
+      </div>
+
+      <div class="sec">Vehicle</div>
+      <div class="card" id="d-vehicle">
+        <div class="card-label">Toyota Auris 2010</div>
+        <div id="d-vehicle-body">—</div>
+      </div>
+
+      <div class="sec">Upcoming</div>
+      <div class="card" id="d-upcoming">
+        <div id="d-upcoming-body">—</div>
+      </div>
+
+    </div><!-- /dashboard -->
+
+    <!-- ═══ PROPERTY ══════════════════════════════════ -->
+    <div class="view" id="view-property">
+
+      <div class="sec">Income</div>
+      <div class="card">
+        <div class="row">
+          <div><div class="row-l">Gross Revenue</div><div class="row-sub">Monthly from tenants</div></div>
+          <div class="row-v inc">+ PLN 4,585.00</div>
+        </div>
+      </div>
+
+      <div class="sec">Fixed Expenses</div>
+      <div class="card">
+        <div class="row">
+          <div><div class="row-l">Bank Mortgage</div><div class="row-sub">Monthly instalment</div></div>
+          <div class="row-v exp">− PLN 3,709.61</div>
+        </div>
+        <div class="row">
+          <div><div class="row-l">Building Admin Fee</div><div class="row-sub">Czynsz administracyjny</div></div>
+          <div class="row-v exp">− PLN 829.00</div>
+        </div>
+      </div>
+
+      <div class="sec">Variable Expenses</div>
+      <div class="card">
+        <div class="row">
+          <div><div class="row-l">Electricity</div><div class="row-sub">Bi-monthly · PLN 356.18</div></div>
+          <div style="display:flex;align-items:center;gap:9px;">
+            <span style="font-size:11px;color:var(--muted);" id="elec-lbl">OFF</span>
+            <div class="tog" id="elec-tog" onclick="toggleElec()"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sec">Tax Calculation (PIT-28 · 8.5%)</div>
+      <div class="card">
+        <div class="row">
+          <div><div class="row-l">Tax Base</div><div class="row-sub" id="p-formula">—</div></div>
+          <div class="row-v tax" id="p-taxbase">PLN —</div>
+        </div>
+        <div class="row">
+          <div><div class="row-l">Tax Due (8.5%)</div><div class="row-sub">PIT-28 advance payment</div></div>
+          <div class="row-v tax" id="p-tax">− PLN —</div>
+        </div>
+      </div>
+
+      <div class="sec">Result</div>
+      <div class="card">
+        <div class="card-label">Net Profit / Loss</div>
+        <div class="hero" id="p-netpl">—</div>
+        <div class="hero-sub" id="p-netpl-sub">—</div>
+        <div class="divider"></div>
+        <div class="row" style="border:none;padding:4px 0;">
+          <span style="font-size:13px;color:var(--muted);">Total Expenses</span>
+          <span style="font-size:13px;color:var(--danger);" id="p-total">PLN —</span>
+        </div>
+      </div>
+
+      <div style="padding:2px 0 8px;">
+        <button class="btn btn-ghost btn-full" onclick="exportCSV()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+          Export CSV / Excel
+        </button>
+      </div>
+
+    </div><!-- /property -->
+
+    <!-- ═══ VEHICLE ═══════════════════════════════════ -->
+    <div class="view" id="view-vehicle">
+
+      <div id="v-alerts"></div>
+
+      <div class="sec">Oil &amp; Filter</div>
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px;">
+          <span style="font-size:14px;" id="v-oil-lbl">— km since last change</span>
+          <span style="font-size:11px;color:var(--muted);" id="v-oil-next">Next: —</span>
+        </div>
+        <div class="prog-track">
+          <div class="prog-fill" id="v-oil-bar" style="width:0%"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:5px;">
+          <span style="font-size:10px;color:var(--muted);">Last: <span id="v-oil-date">—</span></span>
+          <span style="font-size:10px;color:var(--muted);" id="v-oil-pct">0%</span>
+        </div>
+      </div>
+
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-lbl">Odometer</div>
+          <div class="stat-val" id="v-km">190,000</div>
+          <div class="stat-unit">km</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-lbl">Avg Fuel Use</div>
+          <div class="stat-val" id="v-eff">—</div>
+          <div class="stat-unit">L / 100 km</div>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:8px;margin-bottom:10px;">
+        <button class="btn btn-primary" style="flex:1;" onclick="openModal('fuel-modal')">+ Log Fuel</button>
+        <button class="btn btn-secondary" style="flex:1;" onclick="openModal('svc-modal')">+ Log Service</button>
+      </div>
+
+      <div class="sec">Fuel Log</div>
+      <div class="card" style="padding:12px 8px;">
+        <div id="v-fuel-content">
+          <div class="empty"><div class="empty-icon">⛽</div><div class="empty-text">No fuel logs yet</div></div>
+        </div>
+      </div>
+
+      <div class="sec">Maintenance Receipts</div>
+      <div id="v-receipts">
+        <div class="empty"><div class="empty-icon">🔧</div><div class="empty-text">No service receipts yet</div></div>
+      </div>
+
+    </div><!-- /vehicle -->
+
+    <!-- ═══ REMINDERS ═════════════════════════════════ -->
+    <div class="view" id="view-reminders">
+
+      <div class="sec">1st of Month</div>
+      <div class="card">
+        <div class="task" id="task-personalRent">
+          <div class="task-chk" id="chk-personalRent" onclick="checkTask('personalRent')">
+            <svg viewBox="0 0 13 13"><polyline points="1.5,6.5 5,10.5 11.5,2.5"/></svg>
+          </div>
+          <div class="task-body">
+            <div class="task-title" id="tl-personalRent">🏠 Pay Personal Rent</div>
+            <div class="task-meta" id="tm-personalRent">Your apartment monthly rent</div>
+            <div class="task-ts" id="ts-personalRent"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sec">5th of Month</div>
+      <div class="card">
+
+        <div class="task" id="task-tenantPayment">
+          <div class="task-chk" id="chk-tenantPayment" onclick="checkTask('tenantPayment')">
+            <svg viewBox="0 0 13 13"><polyline points="1.5,6.5 5,10.5 11.5,2.5"/></svg>
+          </div>
+          <div class="task-body">
+            <div class="task-title" id="tl-tenantPayment">💰 Confirm Tenant Payment</div>
+            <div class="task-meta">Verify PLN 4,585.00 received</div>
+            <div class="task-ts" id="ts-tenantPayment"></div>
+          </div>
+        </div>
+
+        <div class="task" id="task-adminFee">
+          <div class="task-chk" id="chk-adminFee" onclick="checkTask('adminFee')">
+            <svg viewBox="0 0 13 13"><polyline points="1.5,6.5 5,10.5 11.5,2.5"/></svg>
+          </div>
+          <div class="task-body">
+            <div class="task-title" id="tl-adminFee">🏢 Pay Admin Fee</div>
+            <div class="task-meta">Building admin · PLN 829.00</div>
+            <div class="task-ts" id="ts-adminFee"></div>
+          </div>
+        </div>
+
+        <div class="task" id="task-electricity" style="display:none;">
+          <div class="task-chk" id="chk-electricity" onclick="checkTask('electricity')">
+            <svg viewBox="0 0 13 13"><polyline points="1.5,6.5 5,10.5 11.5,2.5"/></svg>
+          </div>
+          <div class="task-body">
+            <div class="task-title" id="tl-electricity">⚡ Pay Electricity Bill</div>
+            <div class="task-meta">Bi-monthly · PLN 356.18</div>
+            <div class="task-ts" id="ts-electricity"></div>
+          </div>
+        </div>
+
+        <div class="task" id="task-pit28">
+          <div class="task-chk" id="chk-pit28" onclick="checkTask('pit28')">
+            <svg viewBox="0 0 13 13"><polyline points="1.5,6.5 5,10.5 11.5,2.5"/></svg>
+          </div>
+          <div class="task-body">
+            <div class="task-title" id="tl-pit28">📋 Pay PIT-28 Advance</div>
+            <div class="task-meta" id="tm-pit28">PLN — to Tax Office</div>
+            <div class="task-ts" id="ts-pit28"></div>
+          </div>
+        </div>
+
+      </div>
+
+    </div><!-- /reminders -->
+
+    <!-- ═══ HISTORY ════════════════════════════════════ -->
+    <div class="view" id="view-history">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <div class="sec" style="margin:0;">All Months</div>
+        <button class="btn btn-ghost btn-sm" onclick="exportCSV()">Export All</button>
+      </div>
+      <div id="hist-content">
+        <div class="empty"><div class="empty-icon">📋</div><div class="empty-text">History will appear here each month</div></div>
+      </div>
+    </div><!-- /history -->
+
+  </div><!-- /content -->
+
+  <!-- ── BOTTOM NAV ─────────────────────────────────── -->
+  <div id="nav">
+    <button class="nb active" id="nb-dashboard" onclick="goTab('dashboard')">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+      </svg>
+      <span>Home</span>
+      <div class="nb-dot" id="dot-dashboard"></div>
+    </button>
+    <button class="nb" id="nb-property" onclick="goTab('property')">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+      </svg>
+      <span>Property</span>
+    </button>
+    <button class="nb" id="nb-vehicle" onclick="goTab('vehicle')">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"/>
+        <path stroke-linecap="round" stroke-linejoin="round" d="M13 16H7m6 0V9l-2-5H5l-2 4v8h2m14 0h-2V9l-3-5"/>
+      </svg>
+      <span>Vehicle</span>
+      <div class="nb-dot" id="dot-vehicle"></div>
+    </button>
+    <button class="nb" id="nb-reminders" onclick="goTab('reminders')">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M15 17H5a7 7 0 001-3.6V10a6 6 0 1112 0v3.4A7 7 0 0018 17m-3 0v1a3 3 0 01-6 0v-1"/>
+      </svg>
+      <span>Tasks</span>
+      <div class="nb-dot" id="dot-reminders"></div>
+    </button>
+    <button class="nb" id="nb-history" onclick="goTab('history')">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+      </svg>
+      <span>History</span>
+    </button>
+  </div>
+
+</div><!-- /app -->
+
+<!-- ─── MODALS ──────────────────────────────────────── -->
+
+<!-- Fuel -->
+<div class="modal-bg" id="fuel-modal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">⛽ Log Fuel Stop</div>
+    <div class="fg"><label class="flabel">Date</label><input type="date" class="finput" id="f-date"></div>
+    <div class="fg"><label class="flabel">Odometer (km)</label><input type="number" class="finput" id="f-odo" placeholder="190000" inputmode="numeric"></div>
+    <div class="fg"><label class="flabel">Litres Filled</label><input type="number" class="finput" id="f-ltrs" placeholder="0.00" step="0.01" inputmode="decimal"></div>
+    <div class="fg"><label class="flabel">Total Cost (PLN)</label><input type="number" class="finput" id="f-cost" placeholder="0.00" step="0.01" inputmode="decimal"></div>
+    <div style="display:flex;gap:8px;margin-top:6px;">
+      <button class="btn btn-secondary" style="flex:1;" onclick="closeModal('fuel-modal')">Cancel</button>
+      <button class="btn btn-primary" style="flex:1;" onclick="saveFuel()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Service -->
+<div class="modal-bg" id="svc-modal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">🔧 Log Maintenance</div>
+    <div class="fg"><label class="flabel">Date</label><input type="date" class="finput" id="s-date"></div>
+    <div class="fg"><label class="flabel">Odometer (km)</label><input type="number" class="finput" id="s-odo" placeholder="190000" inputmode="numeric"></div>
+    <div class="fg">
+      <label class="flabel">Service Type</label>
+      <select class="finput" id="s-type">
+        <option value="oil">Oil &amp; Filter Change</option>
+        <option value="tires">Tyre Rotation / Replacement</option>
+        <option value="brakes">Brake Inspection / Service</option>
+        <option value="coolant">Coolant Flush</option>
+        <option value="transmission">Transmission Fluid</option>
+        <option value="spark">Spark Plugs</option>
+        <option value="timing">Timing Chain Check</option>
+        <option value="airfilter">Air Filter</option>
+        <option value="cabin">Cabin Air Filter</option>
+        <option value="general">General Inspection</option>
+        <option value="other">Other</option>
+      </select>
+    </div>
+    <div class="fg"><label class="flabel">Cost (PLN)</label><input type="number" class="finput" id="s-cost" placeholder="0.00" step="0.01" inputmode="decimal"></div>
+    <div class="fg"><label class="flabel">Workshop / Notes</label><input type="text" class="finput" id="s-notes" placeholder="Workshop name or any notes"></div>
+    <div style="display:flex;gap:8px;margin-top:6px;">
+      <button class="btn btn-secondary" style="flex:1;" onclick="closeModal('svc-modal')">Cancel</button>
+      <button class="btn btn-primary" style="flex:1;" onclick="saveSvc()">Save Receipt</button>
+    </div>
+  </div>
+</div>
+
+<!-- Settings -->
+<div class="modal-bg" id="settings-modal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">⚙️ Settings</div>
+    <div class="fg">
+      <label class="flabel">Your Personal Rent (PLN / month)</label>
+      <input type="number" class="finput" id="set-rent" placeholder="e.g. 2800" step="0.01" inputmode="decimal">
+    </div>
+    <div class="fg">
+      <label class="flabel">Last Oil Change — Date</label>
+      <input type="date" class="finput" id="set-oil-date">
+    </div>
+    <div class="fg">
+      <label class="flabel">Last Oil Change — Odometer (km)</label>
+      <input type="number" class="finput" id="set-oil-km" placeholder="e.g. 185000" inputmode="numeric">
+    </div>
+    <div style="display:flex;gap:8px;margin-top:6px;">
+      <button class="btn btn-secondary" style="flex:1;" onclick="closeModal('settings-modal')">Cancel</button>
+      <button class="btn btn-primary" style="flex:1;" onclick="saveSettings()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<!-- ─── JAVASCRIPT ───────────────────────────────────── -->
+<script>
+// ═══════════════════════════════════════════════════════
+// CONSTANTS
+// ═══════════════════════════════════════════════════════
+const C = {
+  REVENUE:   4585,
+  MORTGAGE:  3709.61,
+  ADMIN:     829,
+  ELEC:      356.18,
+  TAX:       0.085,
+  INIT_KM:   190000,
+  OIL_KM:    10000,
+  OIL_MO:    12,
+};
+
+// Major service schedule: triggers within 3000 km of target
+const SVC_SCHEDULE = [
+  { id:'timing',  name:'Timing Chain Check',      triggerKm: 200000, sev:'danger' },
+  { id:'airfilter', name:'Air Filter',             triggerKm: 200000, sev:'warn'   },
+  { id:'cabin',   name:'Cabin Air Filter',         triggerKm: 200000, sev:'warn'   },
+  { id:'spark',   name:'Spark Plugs',              triggerKm: 210000, sev:'warn'   },
+  { id:'coolant', name:'Coolant Flush (2-yr cycle)',triggerKm: 0,      sev:'warn', yearInterval: 2 },
+  { id:'transmission', name:'Transmission Fluid',  triggerKm: 250000, sev:'warn'   },
+];
+
+const TASK_NAMES = {
+  personalRent:   'Personal Rent Paid',
+  tenantPayment:  'Tenant Payment Confirmed',
+  adminFee:       'Admin Fee Paid',
+  electricity:    'Electricity Bill Paid',
+  pit28:          'PIT-28 Advance Paid',
+};
+
+const SVC_NAMES = {
+  oil:'Oil & Filter', tires:'Tyres', brakes:'Brakes',
+  coolant:'Coolant Flush', transmission:'Transmission Fluid',
+  spark:'Spark Plugs', timing:'Timing Chain Check',
+  airfilter:'Air Filter', cabin:'Cabin Air Filter',
+  general:'General Inspection', other:'Other Service',
+};
+
+// ═══════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════
+function blankMonthState() {
+  return {
+    electricityOn: false,
+    tasks: {
+      personalRent:  { done:false, ts:null },
+      tenantPayment: { done:false, ts:null },
+      adminFee:      { done:false, ts:null },
+      electricity:   { done:false, ts:null },
+      pit28:         { done:false, ts:null },
+    }
+  };
+}
+
+function defaultState() {
+  return {
+    months: {},
+    vehicle: {
+      lastOilKm: null,
+      lastOilDate: null,
+      majorSvc: {},       // { type: { date, km } }
+      fuelLogs: [],
+      receipts: [],
+    },
+    settings: {
+      personalRent: null,
+      setupDone: false,
+    }
+  };
+}
+
+let S = (() => {
+  try {
+    const raw = localStorage.getItem('edn_v1');
+    if (raw) return JSON.parse(raw);
+  } catch(e) {}
+  return defaultState();
+})();
+
+function save() {
+  localStorage.setItem('edn_v1', JSON.stringify(S));
+}
+
+function monthKey(d) {
+  d = d || new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+}
+
+function curMonth() {
+  const k = monthKey();
+  if (!S.months[k]) { S.months[k] = blankMonthState(); save(); }
+  return S.months[k];
+}
+
+// ═══════════════════════════════════════════════════════
+// FINANCE
+// ═══════════════════════════════════════════════════════
+function calc(electricityOn) {
+  const taxBase = C.REVENUE - C.ADMIN - (electricityOn ? C.ELEC : 0);
+  const tax     = taxBase * C.TAX;
+  const expenses = C.MORTGAGE + C.ADMIN + (electricityOn ? C.ELEC : 0) + tax;
+  return { taxBase, tax, expenses, net: C.REVENUE - expenses };
+}
+
+// ═══════════════════════════════════════════════════════
+// FORMAT
+// ═══════════════════════════════════════════════════════
+function pln(n)  { return 'PLN ' + Math.abs(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function plnSgn(n){ return (n >= 0 ? '+ ' : '− ') + pln(n); }
+function fmtKm(n){ return n.toLocaleString('en-US') + ' km'; }
+function fmtDate(s) {
+  if (!s) return '—';
+  const d = new Date(s + 'T00:00:00');
+  return d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+}
+function fmtMonthFull(k) {
+  const [y,m] = k.split('-');
+  return new Date(+y, +m-1, 1).toLocaleDateString('en-US',{month:'long',year:'numeric'});
+}
+function fmtTs(ts) {
+  if (!ts) return '';
+  const d = new Date(ts);
+  return d.toLocaleDateString('en-GB',{day:'numeric',month:'short'}) +
+         ' at ' + d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+}
+function today() { return new Date().toISOString().split('T')[0]; }
+
+// ═══════════════════════════════════════════════════════
+// VEHICLE HELPERS
+// ═══════════════════════════════════════════════════════
+function currentKm() {
+  const logs = S.vehicle.fuelLogs;
+  const rcpts = S.vehicle.receipts;
+  const allKm = [
+    C.INIT_KM,
+    ...logs.map(l => l.odo),
+    ...rcpts.map(r => r.odo),
+  ];
+  return Math.max(...allKm);
+}
+
+function oilStats() {
+  const km   = currentKm();
+  const lkm  = S.vehicle.lastOilKm  || (C.INIT_KM - 5000);
+  const since = km - lkm;
+  const pct  = Math.min(100, Math.round(since / C.OIL_KM * 100));
+  const next = lkm + C.OIL_KM;
+  return { km, since, pct, next, lkm };
+}
+
+function avgEff() {
+  const logs = [...S.vehicle.fuelLogs].sort((a,b) => a.odo - b.odo);
+  if (logs.length < 2) return null;
+  let ltrs = 0, km = 0;
+  for (let i = 1; i < logs.length; i++) {
+    const d = logs[i].odo - logs[i-1].odo;
+    if (d > 0) { ltrs += logs[i].ltrs; km += d; }
+  }
+  return km > 0 ? (ltrs / km * 100).toFixed(1) : null;
+}
+
+// ═══════════════════════════════════════════════════════
+// TAB NAVIGATION
+// ═══════════════════════════════════════════════════════
+let curTab = 'dashboard';
+
+function goTab(tab) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nb').forEach(b => b.classList.remove('active'));
+  document.getElementById('view-' + tab).classList.add('active');
+  document.getElementById('nb-' + tab).classList.add('active');
+  curTab = tab;
+  renderTab(tab);
+}
+
+function renderTab(t) {
+  if (t === 'dashboard')  renderDashboard();
+  else if (t === 'property')  renderProperty();
+  else if (t === 'vehicle')   renderVehicle();
+  else if (t === 'reminders') renderReminders();
+  else if (t === 'history')   renderHistory();
+}
+
+// ═══════════════════════════════════════════════════════
+// HEADER
+// ═══════════════════════════════════════════════════════
+function renderHeader() {
+  const now  = new Date();
+  const day  = now.getDate();
+  const pill = now.toLocaleDateString('en-US',{month:'short',year:'2-digit'});
+  document.getElementById('hdr-pill').textContent = pill;
+  let note = '';
+  if (day === 1)        note = '· Personal rent due today';
+  else if (day >= 4 && day <= 6) note = '· 5th tasks coming up';
+  document.getElementById('hdr-sub').textContent = 'Personal Finance Dashboard ' + note;
+  // Nav dots
+  updateNavDots();
+}
+
+function updateNavDots() {
+  const ms  = curMonth();
+  const day = new Date().getDate();
+  const oilP = oilStats().pct;
+
+  // Reminder dot: pending tasks within window
+  const pending = ['tenantPayment','adminFee','pit28']
+    .some(k => !ms.tasks[k].done && day >= 4 && day <= 8);
+  const rentPending = !ms.tasks.personalRent.done && day <= 3;
+  document.getElementById('dot-reminders').classList.toggle('show', pending || rentPending);
+
+  // Vehicle dot: oil ≥ 80%
+  document.getElementById('dot-vehicle').classList.toggle('show', oilP >= 80);
+}
+
+// ═══════════════════════════════════════════════════════
+// DASHBOARD
+// ═══════════════════════════════════════════════════════
+function renderDashboard() {
+  const ms  = curMonth();
+  const fin = calc(ms.electricityOn);
+  const now = new Date();
+  const day = now.getDate();
+
+  // Net P&L
+  const netEl = document.getElementById('d-netpl');
+  netEl.textContent = plnSgn(fin.net);
+  netEl.className   = 'hero ' + (fin.net >= 0 ? 'pos' : 'neg');
+  document.getElementById('d-netpl-sub').textContent =
+    'After ' + (fin.net >= 0 ? 'all deductions' : 'losses') +
+    (ms.electricityOn ? ' (electricity active)' : '');
+
+  // Tax
+  document.getElementById('d-tax').textContent =
+    fin.tax.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+
+  // Tasks
+  const taskKeys = ['personalRent','tenantPayment','adminFee',
+                    ...(ms.electricityOn ? ['electricity'] : []), 'pit28'];
+  const done = taskKeys.filter(k => ms.tasks[k] && ms.tasks[k].done).length;
+  document.getElementById('d-tasks').textContent = done;
+  document.getElementById('d-tasks-of').textContent = 'of ' + taskKeys.length + ' this month';
+
+  // Vehicle
+  const oil = oilStats();
+  const fill = oil.pct >= 90 ? 'danger' : oil.pct >= 70 ? 'warn' : '';
+  document.getElementById('d-vehicle-body').innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px;">
+      <span style="font-size:14px;">${fmtKm(oil.since)} since oil change</span>
+      <span style="font-size:11px;color:var(--muted);">Next: ${fmtKm(oil.next)}</span>
+    </div>
+    <div class="prog-track"><div class="prog-fill ${fill}" style="width:${oil.pct}%"></div></div>
+    <div style="margin-top:5px;font-size:11px;color:var(--muted);">
+      ${fmtKm(oil.km)} · ${oil.pct}% to next service
+    </div>`;
+
+  // Upcoming
+  const items = [];
+  if (day <= 2 && !ms.tasks.personalRent.done)
+    items.push({ icon:'🏠', text:'Pay Personal Rent', badge:'today', cls:'badge-danger' });
+  if (day >= 4 && day <= 8) {
+    if (!ms.tasks.tenantPayment.done) items.push({ icon:'💰', text:'Confirm Tenant Payment', badge:'5th', cls:'badge-warn' });
+    if (!ms.tasks.adminFee.done)      items.push({ icon:'🏢', text:'Pay Admin Fee', badge:'5th', cls:'badge-warn' });
+    if (ms.electricityOn && !ms.tasks.electricity.done)
+      items.push({ icon:'⚡', text:'Pay Electricity', badge:'5th', cls:'badge-warn' });
+    if (!ms.tasks.pit28.done)         items.push({ icon:'📋', text:'Pay PIT-28 Advance', badge:'5th', cls:'badge-warn' });
+  }
+  document.getElementById('d-upcoming-body').innerHTML = items.length
+    ? items.map(i => `
+        <div style="display:flex;align-items:center;gap:9px;padding:7px 0;border-bottom:1px solid var(--border);">
+          <span style="font-size:16px;">${i.icon}</span>
+          <span style="flex:1;font-size:13px;">${i.text}</span>
+          <span class="badge ${i.cls}">${i.badge}</span>
+        </div>`).join('')
+    : '<div style="text-align:center;padding:10px 0;font-size:13px;color:var(--muted);">✓ No pending reminders</div>';
+}
+
+// ═══════════════════════════════════════════════════════
+// PROPERTY
+// ═══════════════════════════════════════════════════════
+function renderProperty() {
+  const ms  = curMonth();
+  const fin = calc(ms.electricityOn);
+
+  document.getElementById('elec-tog').classList.toggle('on', ms.electricityOn);
+  document.getElementById('elec-lbl').textContent = ms.electricityOn ? 'ON' : 'OFF';
+  document.getElementById('elec-lbl').style.color = ms.electricityOn ? 'var(--gold-dk)' : 'var(--muted)';
+
+  document.getElementById('p-formula').textContent = ms.electricityOn
+    ? `4,585 − 829 − 356.18 = ${fin.taxBase.toFixed(2)}`
+    : `4,585 − 829 = ${fin.taxBase.toFixed(2)}`;
+  document.getElementById('p-taxbase').textContent = pln(fin.taxBase);
+  document.getElementById('p-tax').textContent = '− ' + pln(fin.tax);
+
+  const netEl = document.getElementById('p-netpl');
+  netEl.textContent = plnSgn(fin.net);
+  netEl.className   = 'hero ' + (fin.net >= 0 ? 'pos' : 'neg');
+  document.getElementById('p-netpl-sub').textContent =
+    fin.net >= 0 ? 'Profit this month' : 'Loss this month';
+  document.getElementById('p-total').textContent = '− ' + pln(fin.expenses);
+}
+
+function toggleElec() {
+  const ms = curMonth();
+  ms.electricityOn = !ms.electricityOn;
+  save();
+  renderProperty();
+  if (curTab === 'dashboard') renderDashboard();
+  updateNavDots();
+  showToast(ms.electricityOn ? '⚡ Electricity ON this month' : 'Electricity OFF this month');
+}
+
+// ═══════════════════════════════════════════════════════
+// VEHICLE
+// ═══════════════════════════════════════════════════════
+function renderVehicle() {
+  const oil = oilStats();
+  const km  = oil.km;
+  const now = new Date();
+
+  // Alerts
+  let alertHtml = '';
+  SVC_SCHEDULE.forEach(svc => {
+    const done = S.vehicle.majorSvc[svc.id];
+    const doneSince = done ? (km - done.km) : null;
+    if (done && doneSince < 0) return; // done recently, skip
+
+    let trigger = false;
+    if (svc.yearInterval) {
+      // Time-based
+      const lastDate = done ? new Date(done.date + 'T00:00:00')
+                            : new Date(now.getFullYear() - svc.yearInterval - 1, now.getMonth(), 1);
+      const monthsAgo = (now - lastDate) / (1000 * 60 * 60 * 24 * 30.44);
+      trigger = monthsAgo >= (svc.yearInterval * 12 - 2); // 2 months grace
+    } else {
+      const lastKm = done ? done.km : (km - 20000); // assume 20k ago if never recorded
+      trigger = km >= (svc.triggerKm - 4000) && km < svc.triggerKm + 30000;
+    }
+    if (!trigger) return;
+
+    const overdue = svc.triggerKm > 0 ? km >= svc.triggerKm : false;
+    alertHtml += `
+      <div class="alert ${overdue ? '' : 'warn'}">
+        <div class="alert-icon">${overdue ? '🔴' : '🟡'}</div>
+        <div class="alert-body">
+          <strong>${svc.name}</strong>
+          ${overdue ? 'Due — currently at ' + fmtKm(km) : 'Coming up — ' + (svc.triggerKm ? 'at ' + fmtKm(svc.triggerKm) : 'periodic check')}
+        </div>
+      </div>`;
+  });
+  if (oil.pct >= 100) alertHtml = `<div class="alert"><div class="alert-icon">🔴</div><div class="alert-body"><strong>Oil Change Overdue</strong>${fmtKm(oil.since)} since last service — change immediately</div></div>` + alertHtml;
+  else if (oil.pct >= 80) alertHtml = `<div class="alert warn"><div class="alert-icon">🟡</div><div class="alert-body"><strong>Oil Change Due Soon</strong>${fmtKm(C.OIL_KM - oil.since)} km remaining</div></div>` + alertHtml;
+
+  document.getElementById('v-alerts').innerHTML = alertHtml
+    ? '<div class="sec" style="margin-top:2px;">Alerts</div>' + alertHtml : '';
+
+  // Oil progress
+  const fill = oil.pct >= 90 ? 'danger' : oil.pct >= 70 ? 'warn' : '';
+  document.getElementById('v-oil-lbl').textContent = fmtKm(oil.since) + ' since last oil change';
+  document.getElementById('v-oil-next').textContent = 'Next: ' + fmtKm(oil.next);
+  document.getElementById('v-oil-bar').style.width = oil.pct + '%';
+  document.getElementById('v-oil-bar').className = 'prog-fill ' + fill;
+  document.getElementById('v-oil-date').textContent = S.vehicle.lastOilDate ? fmtDate(S.vehicle.lastOilDate) : 'Not recorded';
+  document.getElementById('v-oil-pct').textContent = oil.pct + '%';
+
+  document.getElementById('v-km').textContent = km.toLocaleString('en-US');
+  const eff = avgEff();
+  document.getElementById('v-eff').textContent = eff || '—';
+
+  renderFuelLog();
+  renderReceipts();
+  updateNavDots();
+}
+
+function renderFuelLog() {
+  const logs = [...S.vehicle.fuelLogs].sort((a,b) => b.odo - a.odo);
+  if (!logs.length) {
+    document.getElementById('v-fuel-content').innerHTML =
+      '<div class="empty"><div class="empty-icon">⛽</div><div class="empty-text">No fuel logs yet</div></div>';
+    return;
+  }
+  const sorted = [...S.vehicle.fuelLogs].sort((a,b) => a.odo - b.odo);
+  const effMap = {};
+  for (let i = 1; i < sorted.length; i++) {
+    const d = sorted[i].odo - sorted[i-1].odo;
+    if (d > 0) effMap[sorted[i].id] = (sorted[i].ltrs / d * 100).toFixed(1);
+  }
+  document.getElementById('v-fuel-content').innerHTML = `
+    <table class="ftable">
+      <thead><tr><th>Date</th><th>km</th><th>L</th><th>PLN</th><th>L/100</th></tr></thead>
+      <tbody>${logs.map(l => `
+        <tr>
+          <td style="color:var(--muted)">${fmtDate(l.date)}</td>
+          <td>${l.odo.toLocaleString()}</td>
+          <td>${parseFloat(l.ltrs).toFixed(1)}</td>
+          <td>${parseFloat(l.cost).toFixed(0)}</td>
+          <td>${effMap[l.id] || '—'}</td>
+        </tr>`).join('')}</tbody>
+    </table>`;
+}
+
+function renderReceipts() {
+  const recs = [...S.vehicle.receipts].sort((a,b) => new Date(b.date) - new Date(a.date));
+  if (!recs.length) {
+    document.getElementById('v-receipts').innerHTML =
+      '<div class="empty"><div class="empty-icon">🔧</div><div class="empty-text">No service receipts yet</div></div>';
+    return;
+  }
+  document.getElementById('v-receipts').innerHTML = recs.map(r => `
+    <div class="receipt">
+      <div class="receipt-hdr">
+        <div class="receipt-title">${SVC_NAMES[r.type] || r.type}</div>
+        <div class="receipt-date">${fmtDate(r.date)}</div>
+      </div>
+      <div class="receipt-row"><span>Odometer</span><span>${r.odo.toLocaleString()} km</span></div>
+      <div class="receipt-row"><span>Cost</span><span>PLN ${parseFloat(r.cost||0).toFixed(2)}</span></div>
+      ${r.notes ? `<div class="receipt-row"><span>Notes</span><span style="max-width:60%;text-align:right;">${r.notes}</span></div>` : ''}
+    </div>`).join('');
+}
+
+// ═══════════════════════════════════════════════════════
+// REMINDERS
+// ═══════════════════════════════════════════════════════
+function renderReminders() {
+  const ms  = curMonth();
+  const fin = calc(ms.electricityOn);
+
+  // Show/hide electricity task
+  document.getElementById('task-electricity').style.display = ms.electricityOn ? 'flex' : 'none';
+
+  // PIT-28 amount
+  document.getElementById('tm-pit28').textContent =
+    'PLN ' + fin.tax.toFixed(2) + ' → Polish Tax Office (Urząd Skarbowy)';
+
+  // Personal rent hint
+  if (S.settings.personalRent) {
+    document.getElementById('tm-personalRent').textContent =
+      'Your apartment · PLN ' + parseFloat(S.settings.personalRent).toFixed(2);
+  }
+
+  // Render each task
+  ['personalRent','tenantPayment','adminFee','electricity','pit28'].forEach(k => {
+    const t   = ms.tasks[k];
+    const chk = document.getElementById('chk-' + k);
+    const tl  = document.getElementById('tl-'  + k);
+    const ts  = document.getElementById('ts-'  + k);
+    if (!chk) return;
+    chk.classList.toggle('done', t.done);
+    tl.classList.toggle('done', t.done);
+    ts.textContent = t.done ? '✓ Completed ' + fmtTs(t.ts) : '';
+  });
+}
+
+function checkTask(k) {
+  const ms = curMonth();
+  if (ms.tasks[k].done) return;
+  ms.tasks[k] = { done: true, ts: Date.now() };
+  save();
+  renderReminders();
+  renderTab('dashboard');
+  updateNavDots();
+  showToast('✓ Task marked complete');
+}
+
+// ═══════════════════════════════════════════════════════
+// HISTORY
+// ═══════════════════════════════════════════════════════
+function renderHistory() {
+  const keys = Object.keys(S.months).sort((a,b) => b.localeCompare(a));
+  if (!keys.length) {
+    document.getElementById('hist-content').innerHTML =
+      '<div class="empty"><div class="empty-icon">📋</div><div class="empty-text">History will appear here each month</div></div>';
+    return;
+  }
+  document.getElementById('hist-content').innerHTML = keys.map(k => {
+    const ms  = S.months[k];
+    const fin = calc(ms.electricityOn);
+    const all = ['personalRent','tenantPayment','adminFee',
+                 ...(ms.electricityOn ? ['electricity'] : []), 'pit28'];
+    const done = all.filter(tk => ms.tasks[tk] && ms.tasks[tk].done).length;
+    return `
+      <div class="hist-month">
+        <div class="hist-hdr" onclick="toggleHist('${k}')">
+          <div>
+            <div class="hist-title">${fmtMonthFull(k)}</div>
+            <div class="hist-sub">${done}/${all.length} tasks · Net: ${fin.net >= 0 ? '+' : ''}PLN ${fin.net.toFixed(2)}</div>
+          </div>
+          <svg class="hist-arrow" id="harr-${k}" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M19 9l-7 7-7-7"/></svg>
+        </div>
+        <div class="hist-body" id="hbod-${k}">
+          <div style="padding-top:10px;">
+            <div class="row"><span class="row-l">Gross Revenue</span><span class="row-v inc">+ PLN 4,585.00</span></div>
+            <div class="row"><span class="row-l">Mortgage</span><span class="row-v exp">− PLN 3,709.61</span></div>
+            <div class="row"><span class="row-l">Admin Fee</span><span class="row-v exp">− PLN 829.00</span></div>
+            ${ms.electricityOn ? '<div class="row"><span class="row-l">Electricity</span><span class="row-v exp">− PLN 356.18</span></div>' : ''}
+            <div class="row"><span class="row-l">Tax 8.5%</span><span class="row-v tax">− PLN ${fin.tax.toFixed(2)}</span></div>
+            <div class="row" style="border-top:2px solid var(--border);padding-top:10px;margin-top:2px;">
+              <span class="row-l" style="font-weight:600;">Net P&amp;L</span>
+              <span class="row-v ${fin.net >= 0 ? 'inc' : 'exp'}" style="font-weight:600;">${fin.net >= 0 ? '+' : '−'} PLN ${Math.abs(fin.net).toFixed(2)}</span>
+            </div>
+          </div>
+          <div style="margin-top:10px;padding-top:8px;border-top:1px solid var(--border);">
+            <div style="font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);margin-bottom:7px;">Tasks</div>
+            ${all.map(tk => {
+              const t = ms.tasks[tk];
+              return `<div style="display:flex;justify-content:space-between;font-size:11px;padding:3px 0;color:${t.done ? 'var(--text)' : 'var(--faint)'};">
+                <span>${t.done ? '✓' : '○'} ${TASK_NAMES[tk]||tk}</span>
+                <span>${t.done ? fmtTs(t.ts) : 'Pending'}</span>
+              </div>`;
+            }).join('')}
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function toggleHist(k) {
+  const body = document.getElementById('hbod-' + k);
+  const arr  = document.getElementById('harr-' + k);
+  const open = body.classList.contains('open');
+  body.classList.toggle('open', !open);
+  arr.classList.toggle('open', !open);
+}
+
+// ═══════════════════════════════════════════════════════
+// MODALS
+// ═══════════════════════════════════════════════════════
+function openModal(id) {
+  // Pre-fill dates
+  if (id === 'fuel-modal') {
+    document.getElementById('f-date').value = today();
+    document.getElementById('f-odo').value  = '';
+    document.getElementById('f-ltrs').value = '';
+    document.getElementById('f-cost').value = '';
+  } else if (id === 'svc-modal') {
+    document.getElementById('s-date').value  = today();
+    document.getElementById('s-odo').value   = '';
+    document.getElementById('s-cost').value  = '';
+    document.getElementById('s-notes').value = '';
+  } else if (id === 'settings-modal') {
+    document.getElementById('set-rent').value     = S.settings.personalRent || '';
+    document.getElementById('set-oil-date').value = S.vehicle.lastOilDate   || '';
+    document.getElementById('set-oil-km').value   = S.vehicle.lastOilKm     || '';
+  }
+  document.getElementById(id).classList.add('open');
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+
+// Close on backdrop click
+document.querySelectorAll('.modal-bg').forEach(el => {
+  el.addEventListener('click', function(e) {
+    if (e.target === this) closeModal(this.id);
+  });
+});
+
+function saveFuel() {
+  const date = document.getElementById('f-date').value;
+  const odo  = parseInt(document.getElementById('f-odo').value);
+  const ltrs = parseFloat(document.getElementById('f-ltrs').value);
+  const cost = parseFloat(document.getElementById('f-cost').value);
+  if (!date || !odo || !ltrs || !cost) { showToast('Please fill all fields'); return; }
+  S.vehicle.fuelLogs.push({ id: Date.now(), date, odo, ltrs, cost });
+  save();
+  closeModal('fuel-modal');
+  if (curTab === 'vehicle') renderVehicle();
+  renderTab('dashboard');
+  showToast('⛽ Fuel log saved');
+}
+
+function saveSvc() {
+  const date  = document.getElementById('s-date').value;
+  const odo   = parseInt(document.getElementById('s-odo').value);
+  const type  = document.getElementById('s-type').value;
+  const cost  = parseFloat(document.getElementById('s-cost').value) || 0;
+  const notes = document.getElementById('s-notes').value;
+  if (!date || !odo) { showToast('Date and odometer required'); return; }
+
+  S.vehicle.receipts.push({ id: Date.now(), date, odo, type, cost, notes });
+
+  if (type === 'oil') {
+    S.vehicle.lastOilKm   = odo;
+    S.vehicle.lastOilDate = date;
+  }
+  if (['timing','spark','airfilter','cabin','coolant','transmission','brakes'].includes(type)) {
+    S.vehicle.majorSvc[type] = { date, km: odo };
+  }
+
+  save();
+  closeModal('svc-modal');
+  if (curTab === 'vehicle') renderVehicle();
+  renderTab('dashboard');
+  showToast('🔧 Service receipt saved');
+}
+
+function saveSettings() {
+  const rent   = parseFloat(document.getElementById('set-rent').value) || null;
+  const oilDate = document.getElementById('set-oil-date').value || null;
+  const oilKm   = parseInt(document.getElementById('set-oil-km').value) || null;
+  S.settings.personalRent = rent;
+  S.settings.setupDone    = true;
+  if (oilDate) S.vehicle.lastOilDate = oilDate;
+  if (oilKm)   S.vehicle.lastOilKm   = oilKm;
+  save();
+  closeModal('settings-modal');
+  document.getElementById('setup-banner').classList.add('hidden');
+  renderTab(curTab);
+  showToast('Settings saved');
+}
+
+// ═══════════════════════════════════════════════════════
+// CSV EXPORT
+// ═══════════════════════════════════════════════════════
+function exportCSV() {
+  const q  = s => '"' + String(s).replace(/"/g,'""') + '"';
+  const ln = arr => arr.map(q).join(',');
+  const rows = [];
+
+  rows.push(ln(['EDEN PERSONAL DASHBOARD — FINANCIAL EXPORT']));
+  rows.push(ln(['Generated: ' + new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'long',year:'numeric'})]));
+  rows.push(ln(['']));
+
+  // ── Property Monthly Summary ──
+  rows.push(ln(['PROPERTY — MONTHLY SUMMARY']));
+  rows.push(ln(['Month','Gross Revenue (PLN)','Mortgage (PLN)','Admin Fee (PLN)',
+                'Electricity (PLN)','Tax Base (PLN)','Tax 8.5% (PLN)','Net P&L (PLN)','Electricity Active']));
+  Object.keys(S.months).sort().forEach(k => {
+    const ms  = S.months[k];
+    const fin = calc(ms.electricityOn);
+    rows.push(ln([
+      fmtMonthFull(k),
+      '4585.00','3709.61','829.00',
+      ms.electricityOn ? '356.18' : '0.00',
+      fin.taxBase.toFixed(2),
+      fin.tax.toFixed(2),
+      fin.net.toFixed(2),
+      ms.electricityOn ? 'Yes' : 'No',
+    ]));
+  });
+
+  rows.push(ln(['']));
+
+  // ── Task Completion Log ──
+  rows.push(ln(['TASK COMPLETION LOG']));
+  rows.push(ln(['Month','Task','Status','Completed At']));
+  Object.keys(S.months).sort().forEach(k => {
+    const ms = S.months[k];
+    Object.keys(ms.tasks).forEach(tk => {
+      const t = ms.tasks[tk];
+      rows.push(ln([
+        fmtMonthFull(k),
+        TASK_NAMES[tk] || tk,
+        t.done ? 'Completed' : 'Pending',
+        t.done ? fmtTs(t.ts) : '',
+      ]));
+    });
+  });
+
+  rows.push(ln(['']));
+
+  // ── Fuel Log ──
+  rows.push(ln(['VEHICLE — FUEL LOG']));
+  rows.push(ln(['Date','Odometer (km)','Litres','Cost (PLN)','PLN/Litre','L/100km']));
+  const sortedLogs = [...S.vehicle.fuelLogs].sort((a,b) => a.odo - b.odo);
+  sortedLogs.forEach((l, i) => {
+    const prev = i > 0 ? sortedLogs[i-1] : null;
+    const d    = prev ? l.odo - prev.odo : null;
+    const eff  = (d && d > 0) ? (l.ltrs / d * 100).toFixed(2) : '';
+    const ppl  = (l.cost / l.ltrs).toFixed(3);
+    rows.push(ln([fmtDate(l.date), l.odo, parseFloat(l.ltrs).toFixed(2), parseFloat(l.cost).toFixed(2), ppl, eff]));
+  });
+
+  rows.push(ln(['']));
+
+  // ── Maintenance Receipts ──
+  rows.push(ln(['VEHICLE — MAINTENANCE RECEIPTS']));
+  rows.push(ln(['Date','Odometer (km)','Service Type','Cost (PLN)','Notes']));
+  [...S.vehicle.receipts].sort((a,b) => new Date(b.date) - new Date(a.date)).forEach(r => {
+    rows.push(ln([fmtDate(r.date), r.odo, SVC_NAMES[r.type]||r.type, parseFloat(r.cost||0).toFixed(2), r.notes||'']));
+  });
+
+  // BOM for Excel UTF-8 compatibility
+  const blob = new Blob(['﻿' + rows.join('\n')], { type: 'text/csv;charset=utf-8;' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url;
+  a.download = 'eden-dashboard-' + monthKey() + '.csv';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('📊 CSV exported');
+}
+
+// ═══════════════════════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════════════════════
+let toastTimer;
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2600);
+}
+
+// ═══════════════════════════════════════════════════════
+// SERVICE WORKER
+// ═══════════════════════════════════════════════════════
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js').catch(() => {});
+}
+
+// ═══════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════
+function init() {
+  // Ensure current month exists
+  curMonth();
+  // Setup banner
+  if (S.settings.setupDone) {
+    document.getElementById('setup-banner').classList.add('hidden');
+  }
+  renderHeader();
+  renderDashboard();
+}
+
+init();
+</script>
+</body>
+</html>
