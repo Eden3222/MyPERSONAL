@@ -6,38 +6,37 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Eden">
-  <meta name="theme-color" content="#0C0C12">
+  <meta name="theme-color" content="#1C1C1E">
   <title>Eden's Dashboard</title>
   <link rel="manifest" href="manifest.json">
   <style>
+    /* ── TOKENS ─────────────────────────────────────── */
     :root {
-      --bg:         #0C0C12;
-      --surface:    #14141C;
-      --surface2:   #1C1C26;
-      --surface3:   #24242F;
-      --teal:       #00C9A7;
-      --teal-dk:    #009980;
-      --gold:       #F0C040;
-      --gold-lt:    #F9E080;
-      --gold-dk:    #C09820;
-      --text:       #EEEEF5;
-      --muted:      #8888A0;
-      --faint:      #50505F;
-      --border:     #28283A;
-      --danger:     #FF5757;
-      --danger-lt:  #1E0A0A;
-      --ok:         #00C9A7;
-      --ok-lt:      #072018;
-      --warn-lt:    #1A1200;
-      --warn-border:#5A4010;
+      --bg:         #F5F0E8;
+      --surface:    #FDFAF4;
+      --surface2:   #F0EBE0;
+      --gold:       #C9A84C;
+      --gold-lt:    #EED98A;
+      --gold-dk:    #A0782A;
+      --text:       #1C1C1E;
+      --muted:      #6E6E73;
+      --faint:      #AEAEB2;
+      --border:     #E0D9CC;
+      --danger:     #8B2E2E;
+      --danger-lt:  #F2DADA;
+      --ok:         #2D6A4F;
+      --ok-lt:      #D8EFE5;
+      --warn-lt:    #FEF3DC;
+      --warn-border:#E8C880;
       --radius:     16px;
       --radius-s:   10px;
-      --sh:         0 2px 20px rgba(0,0,0,.5);
-      --sh-lg:      0 8px 40px rgba(0,0,0,.7);
+      --sh:         0 2px 12px rgba(0,0,0,.07);
+      --sh-lg:      0 8px 32px rgba(0,0,0,.12);
       --safe-top:   env(safe-area-inset-top, 0px);
       --safe-bot:   env(safe-area-inset-bottom, 0px);
     }
 
+    /* ── RESET ──────────────────────────────────────── */
     *, *::before, *::after {
       box-sizing: border-box; margin: 0; padding: 0;
       -webkit-tap-highlight-color: transparent;
@@ -51,30 +50,26 @@
     }
     ::-webkit-scrollbar { display: none; }
 
+    /* ── LAYOUT ─────────────────────────────────────── */
     #app { display: flex; flex-direction: column; height: 100dvh; }
 
-    /* ── HEADER ── */
+    /* ── HEADER ─────────────────────────────────────── */
     #hdr {
       background: var(--surface);
       border-bottom: 1px solid var(--border);
-      padding: calc(var(--safe-top) + 12px) 20px 12px;
+      padding: calc(var(--safe-top) + 10px) 20px 10px;
       flex-shrink: 0;
       display: flex; align-items: center; justify-content: space-between;
     }
-    .hdr-name {
-      font-size: 20px; font-weight: 700; letter-spacing: -.4px;
-      background: linear-gradient(90deg, var(--teal), var(--gold-lt));
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-    .hdr-sub  { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .hdr-name { font-size: 19px; font-weight: 600; letter-spacing: -.3px; }
+    .hdr-sub  { font-size: 11px; color: var(--muted); margin-top: 1px; }
     .hdr-pill {
-      background: linear-gradient(135deg, var(--teal-dk), var(--teal));
-      color: #fff; font-size: 11px; font-weight: 600;
-      padding: 5px 13px; border-radius: 20px; letter-spacing: .3px;
+      background: var(--gold); color: #fff;
+      font-size: 11px; font-weight: 600;
+      padding: 4px 11px; border-radius: 20px; letter-spacing: .3px;
     }
 
-    /* ── CONTENT ── */
+    /* ── SCROLLABLE CONTENT ─────────────────────────── */
     #content { flex: 1; overflow: hidden; position: relative; }
     .view {
       position: absolute; inset: 0;
@@ -85,7 +80,7 @@
     }
     .view.active { display: block; }
 
-    /* ── BOTTOM NAV ── */
+    /* ── BOTTOM NAV ─────────────────────────────────── */
     #nav {
       background: var(--surface);
       border-top: 1px solid var(--border);
@@ -97,10 +92,10 @@
       align-items: center; justify-content: center;
       padding: 7px 0; gap: 3px;
       background: none; border: none; cursor: pointer;
-      color: var(--faint); transition: color .2s;
+      color: var(--muted); transition: color .2s;
       min-height: 54px; position: relative;
     }
-    .nb.active { color: var(--teal); }
+    .nb.active { color: var(--gold); }
     .nb svg { width: 22px; height: 22px; }
     .nb span { font-size: 10px; font-weight: 500; letter-spacing: .2px; }
     .nb-dot {
@@ -111,7 +106,7 @@
     }
     .nb-dot.show { display: block; }
 
-    /* ── CARDS ── */
+    /* ── CARDS ──────────────────────────────────────── */
     .card {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -124,100 +119,90 @@
       text-transform: uppercase; color: var(--muted); margin-bottom: 10px;
     }
 
-    /* ── SECTION LABELS ── */
+    /* ── SECTION LABELS ─────────────────────────────── */
     .sec {
-      font-size: 10px; font-weight: 700; letter-spacing: 1px;
-      text-transform: uppercase; color: var(--faint);
+      font-size: 10px; font-weight: 700; letter-spacing: .9px;
+      text-transform: uppercase; color: var(--muted);
       margin: 16px 0 6px 2px;
     }
     .sec:first-child { margin-top: 2px; }
 
-    /* ── HERO NUMBER ── */
-    .hero { font-size: 40px; font-weight: 300; letter-spacing: -1.5px; line-height: 1; }
-    .hero.pos {
-      background: linear-gradient(135deg, var(--teal), #80FFE8);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-    .hero.neg {
-      background: linear-gradient(135deg, var(--danger), #FF9090);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-    .hero-sub { font-size: 12px; color: var(--muted); margin-top: 6px; }
+    /* ── HERO NUMBER ────────────────────────────────── */
+    .hero { font-size: 38px; font-weight: 300; letter-spacing: -1.5px; line-height: 1; }
+    .hero.pos { color: var(--ok); }
+    .hero.neg { color: var(--danger); }
+    .hero-sub { font-size: 12px; color: var(--muted); margin-top: 5px; }
 
-    /* ── ROWS ── */
+    /* ── ROWS ───────────────────────────────────────── */
     .row {
       display: flex; justify-content: space-between; align-items: center;
-      padding: 11px 0; border-bottom: 1px solid var(--border);
+      padding: 10px 0; border-bottom: 1px solid var(--border);
     }
     .row:last-child { border-bottom: none; }
     .row-l { font-size: 14px; }
     .row-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
-    .row-v { font-size: 14px; font-weight: 600; }
-    .row-v.inc { color: var(--teal); }
+    .row-v { font-size: 14px; font-weight: 500; }
+    .row-v.inc { color: var(--ok); }
     .row-v.exp { color: var(--danger); }
-    .row-v.tax { color: var(--gold); }
+    .row-v.tax { color: var(--gold-dk); }
 
-    /* ── TOGGLE ── */
+    /* ── TOGGLE ─────────────────────────────────────── */
     .tog {
-      width: 46px; height: 27px; background: var(--surface3);
-      border: 1px solid var(--border);
+      width: 46px; height: 27px; background: var(--border);
       border-radius: 14px; position: relative; cursor: pointer;
-      transition: background .3s, border-color .3s; flex-shrink: 0;
+      transition: background .3s; flex-shrink: 0;
     }
-    .tog.on { background: var(--teal); border-color: var(--teal); }
+    .tog.on { background: var(--gold); }
     .tog::after {
       content: ''; position: absolute;
-      width: 21px; height: 21px; background: #fff;
+      width: 23px; height: 23px; background: #fff;
       border-radius: 50%; top: 2px; left: 2px;
       transition: transform .3s;
-      box-shadow: 0 1px 6px rgba(0,0,0,.4);
+      box-shadow: 0 1px 4px rgba(0,0,0,.2);
     }
     .tog.on::after { transform: translateX(19px); }
 
-    /* ── PROGRESS ── */
+    /* ── PROGRESS ───────────────────────────────────── */
     .prog-track {
-      height: 6px; background: var(--surface3);
-      border-radius: 3px; overflow: hidden; margin-top: 8px;
+      height: 5px; background: var(--surface2);
+      border-radius: 3px; overflow: hidden; margin-top: 7px;
     }
     .prog-fill {
       height: 100%; border-radius: 3px;
-      background: linear-gradient(90deg, var(--teal-dk), var(--teal));
-      transition: width .5s ease;
+      background: var(--gold); transition: width .5s ease;
     }
-    .prog-fill.warn { background: linear-gradient(90deg, #C97A2E, #F0A040); }
-    .prog-fill.danger { background: linear-gradient(90deg, #C02020, var(--danger)); }
+    .prog-fill.warn { background: #C97A2E; }
+    .prog-fill.danger { background: var(--danger); }
 
-    /* ── BUTTONS ── */
+    /* ── BUTTONS ────────────────────────────────────── */
     .btn {
       display: inline-flex; align-items: center; justify-content: center;
-      gap: 6px; padding: 12px 18px; border-radius: var(--radius-s);
-      font-size: 14px; font-weight: 600; cursor: pointer; border: none;
+      gap: 6px; padding: 11px 18px; border-radius: var(--radius-s);
+      font-size: 14px; font-weight: 500; cursor: pointer; border: none;
       font-family: inherit; transition: opacity .15s, transform .1s;
     }
     .btn:active { opacity: .8; transform: scale(.98); }
-    .btn-primary { background: linear-gradient(135deg, var(--teal-dk), var(--teal)); color: #fff; }
+    .btn-primary { background: var(--gold); color: #fff; }
     .btn-secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
-    .btn-ghost { background: transparent; color: var(--teal); border: 1px solid var(--teal); }
+    .btn-ghost { background: transparent; color: var(--gold); border: 1px solid var(--gold); }
     .btn-full { width: 100%; }
     .btn-sm { padding: 6px 13px; font-size: 12px; }
 
-    /* ── STAT GRID ── */
+    /* ── STAT GRID ──────────────────────────────────── */
     .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin-bottom: 10px; }
     .stat-card {
       background: var(--surface); border: 1px solid var(--border);
-      border-radius: var(--radius-s); padding: 14px;
+      border-radius: var(--radius-s); padding: 13px;
     }
-    .stat-lbl { font-size: 10px; color: var(--muted); font-weight: 500; letter-spacing: .4px; text-transform: uppercase; }
-    .stat-val { font-size: 26px; font-weight: 300; letter-spacing: -.5px; margin-top: 4px; color: var(--text); }
-    .stat-unit { font-size: 11px; color: var(--muted); margin-top: 1px; }
+    .stat-lbl { font-size: 10px; color: var(--muted); font-weight: 500; letter-spacing: .3px; }
+    .stat-val { font-size: 24px; font-weight: 300; letter-spacing: -.5px; margin-top: 3px; }
+    .stat-unit { font-size: 12px; color: var(--muted); }
 
-    /* ── ALERTS ── */
+    /* ── ALERTS ─────────────────────────────────────── */
     .alert {
-      border-radius: var(--radius-s); padding: 12px 14px;
-      margin-bottom: 8px; display: flex; gap: 10px; align-items: flex-start;
-      border: 1px solid rgba(255,87,87,.25);
+      border-radius: var(--radius-s); padding: 11px 13px;
+      margin-bottom: 8px; display: flex; gap: 9px; align-items: flex-start;
+      border: 1px solid var(--danger-lt);
       background: var(--danger-lt);
     }
     .alert.warn { background: var(--warn-lt); border-color: var(--warn-border); }
@@ -225,7 +210,7 @@
     .alert-body { font-size: 13px; line-height: 1.4; }
     .alert-body strong { display: block; font-weight: 600; margin-bottom: 1px; }
 
-    /* ── TASKS ── */
+    /* ── TASKS ──────────────────────────────────────── */
     .task {
       display: flex; align-items: center; gap: 12px;
       padding: 13px 0; border-bottom: 1px solid var(--border);
@@ -235,19 +220,19 @@
       width: 28px; height: 28px; border-radius: 50%;
       border: 2px solid var(--border); display: flex;
       align-items: center; justify-content: center;
-      cursor: pointer; flex-shrink: 0; background: transparent;
+      cursor: pointer; flex-shrink: 0; background: #fff;
       transition: all .2s;
     }
-    .task-chk.done { background: var(--teal); border-color: var(--teal); box-shadow: 0 0 12px rgba(0,201,167,.3); }
+    .task-chk.done { background: var(--gold); border-color: var(--gold); }
     .task-chk svg { width: 13px; height: 13px; stroke: #fff; stroke-width: 3; fill: none; opacity: 0; transition: opacity .2s; }
     .task-chk.done svg { opacity: 1; }
     .task-body { flex: 1; min-width: 0; }
     .task-title { font-size: 14px; font-weight: 500; }
-    .task-title.done { text-decoration: line-through; color: var(--faint); }
+    .task-title.done { text-decoration: line-through; color: var(--muted); }
     .task-meta { font-size: 11px; color: var(--muted); margin-top: 1px; }
-    .task-ts { font-size: 10px; color: var(--teal); margin-top: 2px; }
+    .task-ts { font-size: 10px; color: var(--gold-dk); margin-top: 2px; }
 
-    /* ── FUEL TABLE ── */
+    /* ── FUEL TABLE ─────────────────────────────────── */
     .ftable { width: 100%; border-collapse: collapse; font-size: 12px; }
     .ftable th {
       text-align: left; padding: 4px 6px 9px;
@@ -255,12 +240,12 @@
       letter-spacing: .5px; text-transform: uppercase;
       border-bottom: 1px solid var(--border);
     }
-    .ftable td { padding: 9px 6px; border-bottom: 1px solid var(--border); color: var(--text); }
+    .ftable td { padding: 9px 6px; border-bottom: 1px solid var(--border); }
     .ftable tr:last-child td { border-bottom: none; }
 
-    /* ── RECEIPT CARD ── */
+    /* ── RECEIPT CARD ───────────────────────────────── */
     .receipt {
-      background: var(--surface2); border: 1px solid var(--border);
+      background: var(--surface2); border: 1px dashed var(--border);
       border-radius: var(--radius-s); padding: 13px; margin-bottom: 9px;
     }
     .receipt-hdr { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 7px; }
@@ -268,89 +253,86 @@
     .receipt-date { font-size: 10px; color: var(--muted); }
     .receipt-row { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); padding: 2px 0; }
 
-    /* ── HISTORY ACCORDION ── */
+    /* ── HISTORY ACCORDION ──────────────────────────── */
     .hist-month {
       background: var(--surface); border: 1px solid var(--border);
       border-radius: var(--radius); margin-bottom: 9px; overflow: hidden;
     }
     .hist-hdr {
       display: flex; align-items: center; justify-content: space-between;
-      padding: 14px 16px; cursor: pointer; user-select: none;
+      padding: 13px 16px; cursor: pointer; user-select: none;
     }
     .hist-title { font-size: 15px; font-weight: 600; }
     .hist-sub { font-size: 10px; color: var(--muted); margin-top: 2px; }
-    .hist-body { padding: 0 16px 14px; border-top: 1px solid var(--border); display: none; }
+    .hist-body {
+      padding: 0 16px 14px; border-top: 1px solid var(--border);
+      display: none;
+    }
     .hist-body.open { display: block; }
-    .hist-arrow { transition: transform .25s; color: var(--muted); }
+    .hist-arrow { transition: transform .25s; }
     .hist-arrow.open { transform: rotate(180deg); }
 
-    /* ── MODAL SHEET ── */
+    /* ── MODAL SHEET ────────────────────────────────── */
     .modal-bg {
-      position: fixed; inset: 0; background: rgba(0,0,0,.7);
+      position: fixed; inset: 0; background: rgba(0,0,0,.45);
       z-index: 900; display: flex; align-items: flex-end;
       opacity: 0; pointer-events: none; transition: opacity .3s;
     }
     .modal-bg.open { opacity: 1; pointer-events: all; }
     .modal-sheet {
-      width: 100%; background: var(--surface2);
-      border-radius: 22px 22px 0 0;
-      border-top: 1px solid var(--border);
+      width: 100%; background: var(--surface);
+      border-radius: 20px 20px 0 0;
       padding: 14px 18px calc(var(--safe-bot) + 20px);
-      transform: translateY(100%); max-height: 88vh; overflow-y: auto;
+      transform: translateY(100%); max-height: 85vh; overflow-y: auto;
       transition: transform .3s cubic-bezier(.32,.72,0,1);
     }
     .modal-bg.open .modal-sheet { transform: translateY(0); }
-    .modal-handle { width: 36px; height: 4px; background: var(--border); border-radius: 2px; margin: 0 auto 16px; }
-    .modal-title { font-size: 18px; font-weight: 700; margin-bottom: 16px; }
+    .modal-handle { width: 36px; height: 4px; background: var(--border); border-radius: 2px; margin: 0 auto 14px; }
+    .modal-title { font-size: 17px; font-weight: 600; margin-bottom: 14px; }
 
-    /* ── FORM ── */
+    /* ── FORM ───────────────────────────────────────── */
     .fg { margin-bottom: 13px; }
     .flabel {
       font-size: 11px; font-weight: 700; letter-spacing: .4px;
       text-transform: uppercase; color: var(--muted); margin-bottom: 5px; display: block;
     }
     .finput {
-      width: 100%; padding: 12px 14px;
-      background: var(--surface3); border: 1px solid var(--border);
+      width: 100%; padding: 11px 13px;
+      background: var(--surface); border: 1px solid var(--border);
       border-radius: var(--radius-s); font-size: 16px; color: var(--text);
       font-family: inherit; -webkit-appearance: none; outline: none;
       transition: border-color .2s;
     }
-    .finput:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(0,201,167,.1); }
-    select.finput option { background: var(--surface3); }
+    .finput:focus { border-color: var(--gold); }
 
-    /* ── BADGE ── */
-    .badge { display: inline-block; padding: 3px 9px; border-radius: 10px; font-size: 10px; font-weight: 700; letter-spacing: .3px; }
-    .badge-warn { background: var(--warn-lt); color: var(--gold); border: 1px solid var(--warn-border); }
-    .badge-danger { background: var(--danger-lt); color: var(--danger); border: 1px solid rgba(255,87,87,.2); }
+    /* ── BADGE ──────────────────────────────────────── */
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600; }
+    .badge-warn { background: var(--warn-lt); color: #7A5A10; border: 1px solid var(--warn-border); }
+    .badge-danger { background: var(--danger-lt); color: var(--danger); }
 
-    /* ── EMPTY STATE ── */
-    .empty { text-align: center; padding: 32px 12px; color: var(--muted); }
-    .empty-icon { font-size: 32px; margin-bottom: 8px; }
+    /* ── EMPTY STATE ────────────────────────────────── */
+    .empty { text-align: center; padding: 28px 12px; color: var(--muted); }
+    .empty-icon { font-size: 30px; margin-bottom: 8px; }
     .empty-text { font-size: 13px; }
 
-    /* ── TOAST ── */
+    /* ── TOAST ──────────────────────────────────────── */
     #toast {
-      position: fixed; top: calc(var(--safe-top) + 70px); left: 50%;
+      position: fixed; top: calc(var(--safe-top) + 66px); left: 50%;
       transform: translateX(-50%) translateY(-14px);
-      background: var(--surface3); color: var(--text);
-      border: 1px solid var(--border);
-      padding: 10px 20px; border-radius: 20px;
+      background: var(--text); color: #fff;
+      padding: 9px 18px; border-radius: 20px;
       font-size: 13px; font-weight: 500;
       z-index: 2000; opacity: 0; transition: all .28s;
       pointer-events: none; white-space: nowrap;
-      box-shadow: var(--sh);
     }
     #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-    /* ── DIVIDER ── */
+    /* ── DIVIDER ────────────────────────────────────── */
     .divider { height: 1px; background: var(--border); margin: 10px 0; }
 
-    /* ── SETUP BANNER ── */
+    /* ── FIRST-RUN BANNER ───────────────────────────── */
     #setup-banner {
-      background: linear-gradient(90deg, rgba(0,201,167,.15), rgba(240,192,64,.1));
-      border-bottom: 1px solid rgba(0,201,167,.2);
-      color: var(--teal);
+      background: var(--gold); color: #fff;
       padding: 10px 16px; font-size: 13px; font-weight: 500;
       display: flex; align-items: center; justify-content: space-between;
       cursor: pointer; flex-shrink: 0;
@@ -661,6 +643,12 @@
   <div class="modal-sheet">
     <div class="modal-handle"></div>
     <div class="modal-title">⛽ Log Fuel Stop</div>
+    <input type="file" id="f-img" accept="image/*" capture="environment" style="display:none" onchange="scanReceiptFuel(this)">
+    <button class="btn btn-ghost btn-full" style="margin-bottom:14px;" onclick="document.getElementById('f-img').click()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><circle cx="12" cy="13" r="3"/></svg>
+      Scan Receipt with AI
+    </button>
+    <div id="f-scan-status" style="display:none;text-align:center;font-size:13px;color:var(--muted);margin-bottom:12px;"></div>
     <div class="fg"><label class="flabel">Date</label><input type="date" class="finput" id="f-date"></div>
     <div class="fg"><label class="flabel">Odometer (km)</label><input type="number" class="finput" id="f-odo" placeholder="190000" inputmode="numeric"></div>
     <div class="fg"><label class="flabel">Litres Filled</label><input type="number" class="finput" id="f-ltrs" placeholder="0.00" step="0.01" inputmode="decimal"></div>
@@ -677,6 +665,12 @@
   <div class="modal-sheet">
     <div class="modal-handle"></div>
     <div class="modal-title">🔧 Log Maintenance</div>
+    <input type="file" id="s-img" accept="image/*" capture="environment" style="display:none" onchange="scanReceiptSvc(this)">
+    <button class="btn btn-ghost btn-full" style="margin-bottom:14px;" onclick="document.getElementById('s-img').click()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><circle cx="12" cy="13" r="3"/></svg>
+      Scan Receipt with AI
+    </button>
+    <div id="s-scan-status" style="display:none;text-align:center;font-size:13px;color:var(--muted);margin-bottom:12px;"></div>
     <div class="fg"><label class="flabel">Date</label><input type="date" class="finput" id="s-date"></div>
     <div class="fg"><label class="flabel">Odometer (km)</label><input type="number" class="finput" id="s-odo" placeholder="190000" inputmode="numeric"></div>
     <div class="fg">
@@ -731,6 +725,12 @@
       <label class="flabel">Your Personal Rent (PLN / month)</label>
       <input type="number" class="finput" id="set-rent" placeholder="e.g. 2800" step="0.01" inputmode="decimal">
     </div>
+    <div class="sec">AI Receipt Scanning</div>
+    <div class="fg">
+      <label class="flabel">Anthropic API Key (for receipt scanning)</label>
+      <input type="password" class="finput" id="set-api-key" placeholder="sk-ant-…" autocomplete="off">
+    </div>
+    <div style="font-size:11px;color:var(--muted);margin:-8px 0 12px;">Stored only on this device. Get a key at console.anthropic.com</div>
     <div class="sec">Vehicle</div>
     <div class="fg">
       <label class="flabel">Starting Odometer (km)</label>
@@ -825,6 +825,7 @@ function defaultState() {
       elec:         null,
       initKm:       null,
       setupDone:    false,
+      apiKey:       null,
     }
   };
 }
@@ -980,7 +981,7 @@ function updateNavDots() {
   const rentPending = !ms.tasks.personalRent.done && day <= 3;
   document.getElementById('dot-reminders').classList.toggle('show', pending || rentPending);
 
-  // Vehicle dot: oil >= 80%
+  // Vehicle dot: oil ≥ 80%
   document.getElementById('dot-vehicle').classList.toggle('show', oilP >= 80);
 }
 
@@ -1287,7 +1288,10 @@ function renderHistory() {
             <div style="font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);margin-bottom:7px;">Tasks</div>
             ${all.map(tk => {
               const t = ms.tasks[tk];
-              return `<div style="display:flex;justify-content:space-between;font-size:11px;padding:3px 0;color:${t.done ? 'var(--text)' : 'var(--faint)'};"><span>${t.done ? '✓' : '○'} ${TASK_NAMES[tk]||tk}</span><span>${t.done ? fmtTs(t.ts) : 'Pending'}</span></div>`;
+              return `<div style="display:flex;justify-content:space-between;font-size:11px;padding:3px 0;color:${t.done ? 'var(--text)' : 'var(--faint)''};">
+                <span>${t.done ? '✓' : '○'} ${TASK_NAMES[tk]||tk}</span>
+                <span>${t.done ? fmtTs(t.ts) : 'Pending'}</span>
+              </div>`;
             }).join('')}
           </div>
         </div>
@@ -1313,11 +1317,15 @@ function openModal(id) {
     document.getElementById('f-odo').value  = '';
     document.getElementById('f-ltrs').value = '';
     document.getElementById('f-cost').value = '';
+    const fs = document.getElementById('f-scan-status');
+    fs.style.display = 'none'; fs.style.color = 'var(--muted)';
   } else if (id === 'svc-modal') {
     document.getElementById('s-date').value  = today();
     document.getElementById('s-odo').value   = '';
     document.getElementById('s-cost').value  = '';
     document.getElementById('s-notes').value = '';
+    const ss = document.getElementById('s-scan-status');
+    ss.style.display = 'none'; ss.style.color = 'var(--muted)';
   } else if (id === 'settings-modal') {
     document.getElementById('set-revenue').value  = S.settings.revenue      || '';
     document.getElementById('set-mortgage').value = S.settings.mortgage     || '';
@@ -1325,6 +1333,7 @@ function openModal(id) {
     document.getElementById('set-elec').value     = S.settings.elec         || '';
     document.getElementById('set-init-km').value  = S.settings.initKm       || '';
     document.getElementById('set-rent').value     = S.settings.personalRent || '';
+    document.getElementById('set-api-key').value  = S.settings.apiKey       || '';
     document.getElementById('set-oil-date').value = S.vehicle.lastOilDate   || '';
     document.getElementById('set-oil-km').value   = S.vehicle.lastOilKm     || '';
   }
@@ -1390,12 +1399,14 @@ function saveSettings() {
   const rent     = parseFloat(document.getElementById('set-rent').value)     || null;
   const oilDate  = document.getElementById('set-oil-date').value || null;
   const oilKm    = parseInt(document.getElementById('set-oil-km').value)     || null;
+  const apiKey   = document.getElementById('set-api-key').value.trim()       || null;
   S.settings.revenue      = revenue;
   S.settings.mortgage     = mortgage;
   S.settings.admin        = admin;
   S.settings.elec         = elec;
   S.settings.initKm       = initKm;
   S.settings.personalRent = rent;
+  S.settings.apiKey       = apiKey;
   S.settings.setupDone    = true;
   if (oilDate) S.vehicle.lastOilDate = oilDate;
   if (oilKm)   S.vehicle.lastOilKm   = oilKm;
@@ -1489,6 +1500,114 @@ function exportCSV() {
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
   showToast('📊 CSV exported');
+}
+
+// ═══════════════════════════════════════════════════════
+// AI RECEIPT SCANNING
+// ═══════════════════════════════════════════════════════
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload  = () => resolve(reader.result.split(',')[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+async function callVision(base64, mediaType, prompt) {
+  const key = S.settings.apiKey;
+  if (!key) {
+    showToast('⚙️ Add API key in Settings first');
+    return null;
+  }
+  if (!navigator.onLine) {
+    showToast('📵 Internet needed for AI scanning');
+    return null;
+  }
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'x-api-key': key,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true',
+      'content-type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: 'claude-haiku-4-5',
+      max_tokens: 256,
+      messages: [{
+        role: 'user',
+        content: [
+          { type: 'image', source: { type: 'base64', media_type: mediaType, data: base64 } },
+          { type: 'text',  text: prompt }
+        ]
+      }]
+    })
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error?.message || 'API error ' + res.status);
+  }
+  const data = await res.json();
+  const text = data.content?.[0]?.text || '';
+  const match = text.match(/\{[\s\S]*\}/);
+  if (!match) throw new Error('No JSON in response');
+  return JSON.parse(match[0]);
+}
+
+async function scanReceiptFuel(input) {
+  const file = input.files[0];
+  if (!file) return;
+  input.value = '';
+  const status = document.getElementById('f-scan-status');
+  status.style.display = 'block';
+  status.textContent = '🤖 Reading receipt…';
+  try {
+    const base64    = await fileToBase64(file);
+    const mediaType = file.type || 'image/jpeg';
+    const result    = await callVision(base64, mediaType,
+      'This is a fuel/petrol station receipt. Extract the data and return ONLY valid JSON with these fields (null if not found): ' +
+      '{"date":"YYYY-MM-DD","odometer":number_or_null,"liters":number_or_null,"cost":number_or_null}. ' +
+      'For cost/liters use the total/final values. Date format must be YYYY-MM-DD.');
+    if (!result) { status.style.display = 'none'; return; }
+    if (result.date)     document.getElementById('f-date').value = result.date;
+    if (result.odometer) document.getElementById('f-odo').value  = result.odometer;
+    if (result.liters)   document.getElementById('f-ltrs').value = result.liters;
+    if (result.cost)     document.getElementById('f-cost').value = result.cost;
+    status.textContent = '✓ Fields filled — check and save';
+    status.style.color = 'var(--teal)';
+  } catch(e) {
+    status.textContent = '✗ ' + (e.message || 'Scan failed — fill manually');
+    status.style.color = 'var(--danger)';
+  }
+}
+
+async function scanReceiptSvc(input) {
+  const file = input.files[0];
+  if (!file) return;
+  input.value = '';
+  const status = document.getElementById('s-scan-status');
+  status.style.display = 'block';
+  status.textContent = '🤖 Reading receipt…';
+  try {
+    const base64    = await fileToBase64(file);
+    const mediaType = file.type || 'image/jpeg';
+    const result    = await callVision(base64, mediaType,
+      'This is a car service/maintenance receipt. Extract the data and return ONLY valid JSON: ' +
+      '{"date":"YYYY-MM-DD","odometer":number_or_null,"serviceType":"one of: oil|tires|brakes|coolant|transmission|spark|timing|airfilter|cabin|general|other","cost":number_or_null,"notes":"workshop name or brief description"}. ' +
+      'Date format must be YYYY-MM-DD. Choose the best matching serviceType.');
+    if (!result) { status.style.display = 'none'; return; }
+    if (result.date)        document.getElementById('s-date').value  = result.date;
+    if (result.odometer)    document.getElementById('s-odo').value   = result.odometer;
+    if (result.serviceType) document.getElementById('s-type').value  = result.serviceType;
+    if (result.cost)        document.getElementById('s-cost').value  = result.cost;
+    if (result.notes)       document.getElementById('s-notes').value = result.notes;
+    status.textContent = '✓ Fields filled — check and save';
+    status.style.color = 'var(--teal)';
+  } catch(e) {
+    status.textContent = '✗ ' + (e.message || 'Scan failed — fill manually');
+    status.style.color = 'var(--danger)';
+  }
 }
 
 // ═══════════════════════════════════════════════════════
