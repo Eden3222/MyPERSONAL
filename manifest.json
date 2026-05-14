@@ -4,8 +4,8 @@
   "description": "Personal property, vehicle & life finance dashboard",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#0C0C12",
-  "theme_color": "#0C0C12",
+  "background_color": "#0D0F1C",
+  "theme_color": "#0D0F1C",
   "orientation": "portrait-primary",
   "icons": [
     {
